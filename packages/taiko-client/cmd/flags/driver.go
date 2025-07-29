@@ -38,7 +38,7 @@ var (
 		Category: driverCategory,
 		EnvVars:  []string{"BLOB_SERVER"},
 	}
-	// preconf block server
+	// preconfirmation block server
 	PreconfBlockServerPort = &cli.Uint64Flag{
 		Name:     "preconfirmation.serverPort",
 		Usage:    "HTTP port of the preconfirmation block server, 0 means disabled",
@@ -65,6 +65,13 @@ var (
 		Category: driverCategory,
 		EnvVars:  []string{"PRECONFIRMATION_WHITELIST"},
 	}
+	PreconfHandoverSkipSlots = &cli.Uint64Flag{
+		Name:     "preconfirmation.handoverSkipSlots",
+		Usage:    "Handover slots to provide a boundary at the end of an epoch",
+		Value:    4,
+		Category: driverCategory,
+		EnvVars:  []string{"PRECONF_HANDOVER_SKIP_SLOTS"},
+	}
 )
 
 // DriverFlags All driver flags.
@@ -81,4 +88,5 @@ var DriverFlags = MergeFlags(CommonFlags, []cli.Flag{
 	PreconfBlockServerJWTSecret,
 	PreconfBlockServerCORSOrigins,
 	PreconfWhitelistAddress,
+	PreconfHandoverSkipSlots,
 }, p2pFlags.P2PFlags("PRECONFIRMATION"))

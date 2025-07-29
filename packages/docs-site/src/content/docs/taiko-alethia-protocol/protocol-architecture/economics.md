@@ -3,7 +3,7 @@ title: Economics
 description: Core concept page for "Economics".
 ---
 
-Taiko Alethia's **based rollup design** and **multi-proof architecture** create a unique economic cycle. The protocol ensures fair compensation for both **block proposers** and **block provers**, while sustaining the network through the **Taiko DAO Treasury**.
+Taiko Alethia's **based rollup design** and **multiproving architecture** create a unique economic cycle. The protocol ensures fair compensation for both **block proposers** and **block provers**, while sustaining the network through the **Taiko DAO Treasury**.
 
 The following diagram illustrates **Taiko Alethia's transaction fee flow**:
 
@@ -33,11 +33,11 @@ When a **user submits a transaction** on **Taiko L2**, they pay a **transaction 
 The **L2 block proposer** is responsible for:
 
 - Aggregating and ordering transactions into **L2 blocks**.
-- Submitting **L2 blocks** to **Ethereum L1** by calling `proposeBlock` in `TaikoL1.sol`.
+- Submitting **L2 blocks** to **Ethereum L1** by calling `proposeBlock` in `TaikoInbox.sol`.
 
 ### **Costs Incurred by L2 Block Proposer**
 
-1. **L1 Fee** → Paid to **Ethereum L1** via `TaikoL1.sol` when proposing an L2 block.
+1. **L1 Fee** → Paid to **Ethereum L1** via `TaikoInbox.sol` when proposing an L2 block.
 2. **Prover Fee** → Paid to the **block prover** for proving the correctness of the block.
 
 ---
@@ -60,6 +60,6 @@ The **block prover** is responsible for:
 
 - **The Taiko DAO Treasury receives 25% of the base fee**, ensuring long-term sustainability of the protocol.
 - The DAO uses these funds to **support development, research, security, and governance**.
-- The **validity/contest bond** required for Taiko Alethia can be found on the [Network Configuration](/network-reference/network-configuration) page.
+- The **liveness bond** required for Taiko Alethia can be found on the [Network Configuration](/network-reference/network-configuration) page.
 
 ---

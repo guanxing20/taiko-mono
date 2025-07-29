@@ -12,7 +12,7 @@ import (
 // Ensure TaikoDataBlockMetadataPacaya implements TaikoBlockMetaData.
 var _ TaikoProposalMetaData = (*TaikoDataBlockMetadataPacaya)(nil)
 
-// TaikoDataBlockMetadataPacaya is the metadata of an ontake Taiko block.
+// TaikoDataBlockMetadataPacaya is the metadata of an Pacaya Taiko blocks batch.
 type TaikoDataBlockMetadataPacaya struct {
 	pacayaBindings.ITaikoInboxBatchInfo
 	pacayaBindings.ITaikoInboxBatchMetadata
@@ -20,7 +20,7 @@ type TaikoDataBlockMetadataPacaya struct {
 }
 
 // NewTaikoDataBlockMetadataPacaya creates a new instance of TaikoDataBlockMetadataPacaya
-// from the TaikoL1.BlockProposedV2 event.
+// from the TaikoInbox.BatchProposed event.
 func NewTaikoDataBlockMetadataPacaya(e *pacayaBindings.TaikoInboxClientBatchProposed) *TaikoDataBlockMetadataPacaya {
 	return &TaikoDataBlockMetadataPacaya{
 		ITaikoInboxBatchInfo:     e.Info,
@@ -29,17 +29,12 @@ func NewTaikoDataBlockMetadataPacaya(e *pacayaBindings.TaikoInboxClientBatchProp
 	}
 }
 
-// Ontake implemnts TaikoProposalMetaData interface.
-func (m *TaikoDataBlockMetadataPacaya) Ontake() TaikoBlockMetaDataOntake {
-	return nil
-}
-
-// Pacaya implemnts TaikoProposalMetaData interface.
+// Pacaya implements TaikoProposalMetaData interface.
 func (m *TaikoDataBlockMetadataPacaya) Pacaya() TaikoBatchMetaDataPacaya {
 	return m
 }
 
-// IsPacaya implemnts TaikoProposalMetaData interface.
+// IsPacaya implements TaikoProposalMetaData interface.
 func (m *TaikoDataBlockMetadataPacaya) IsPacaya() bool {
 	return true
 }
@@ -49,7 +44,7 @@ func (m *TaikoDataBlockMetadataPacaya) GetTxListHash() common.Hash {
 	return m.TxsHash
 }
 
-// GetTxListHash returns block extradata.
+// GetExtraData returns block extradata.
 func (m *TaikoDataBlockMetadataPacaya) GetExtraData() []byte {
 	return m.ExtraData[:]
 }
@@ -59,7 +54,7 @@ func (m *TaikoDataBlockMetadataPacaya) GetCoinbase() common.Address {
 	return m.Coinbase
 }
 
-// GetTxListHash returns batch ID.
+// GetBatchID returns batch ID.
 func (m *TaikoDataBlockMetadataPacaya) GetBatchID() *big.Int {
 	return new(big.Int).SetUint64(m.BatchId)
 }

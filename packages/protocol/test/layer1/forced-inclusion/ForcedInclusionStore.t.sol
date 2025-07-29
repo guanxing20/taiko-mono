@@ -30,7 +30,7 @@ contract MockInbox {
         numBatches = _numBatches;
     }
 
-    function getStats2() external view returns (ITaikoInbox.Stats2 memory stats2_) {
+    function v4GetStats2() external view returns (ITaikoInbox.Stats2 memory stats2_) {
         stats2_.numBatches = numBatches;
     }
 }
@@ -48,7 +48,7 @@ abstract contract ForcedInclusionStoreTestBase is CommonTest {
         mockInbox = new MockInbox();
         store = ForcedInclusionStore(
             deploy({
-                name: LibStrings.B_FORCED_INCLUSION_STORE,
+                name: "forced_inclusion_store",
                 impl: address(
                     new ForcedInclusionStoreForTest(
                         inclusionDelay, feeInGwei, address(mockInbox), whitelistedProposer

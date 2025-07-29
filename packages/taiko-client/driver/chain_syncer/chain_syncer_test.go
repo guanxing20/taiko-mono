@@ -21,9 +21,8 @@ import (
 
 type ChainSyncerTestSuite struct {
 	testutils.ClientTestSuite
-	s          *L2ChainSyncer
-	snapshotID string
-	p          testutils.Proposer
+	s *L2ChainSyncer
+	p testutils.Proposer
 }
 
 func (s *ChainSyncerTestSuite) SetupTest() {
@@ -39,6 +38,7 @@ func (s *ChainSyncerTestSuite) SetupTest() {
 		false,
 		1*time.Hour,
 		s.BlobServer.URL(),
+		nil,
 	)
 	s.Nil(err)
 	s.s = syncer
@@ -56,17 +56,17 @@ func (s *ChainSyncerTestSuite) SetupTest() {
 			L2Endpoint:                  os.Getenv("L2_WS"),
 			L2EngineEndpoint:            os.Getenv("L2_AUTH"),
 			JwtSecret:                   string(jwtSecret),
-			TaikoL1Address:              common.HexToAddress(os.Getenv("TAIKO_INBOX")),
+			TaikoInboxAddress:           common.HexToAddress(os.Getenv("TAIKO_INBOX")),
 			ProverSetAddress:            common.HexToAddress(os.Getenv("PROVER_SET")),
 			TaikoWrapperAddress:         common.HexToAddress(os.Getenv("TAIKO_WRAPPER")),
 			ForcedInclusionStoreAddress: common.HexToAddress(os.Getenv("FORCED_INCLUSION_STORE")),
-			TaikoL2Address:              common.HexToAddress(os.Getenv("TAIKO_ANCHOR")),
+			TaikoAnchorAddress:          common.HexToAddress(os.Getenv("TAIKO_ANCHOR")),
 			TaikoTokenAddress:           common.HexToAddress(os.Getenv("TAIKO_TOKEN")),
 		},
-		L1ProposerPrivKey:          l1ProposerPrivKey,
-		L2SuggestedFeeRecipient:    common.HexToAddress(os.Getenv("L2_SUGGESTED_FEE_RECIPIENT")),
-		ProposeInterval:            1024 * time.Hour,
-		MaxProposedTxListsPerEpoch: 1,
+		L1ProposerPrivKey:       l1ProposerPrivKey,
+		L2SuggestedFeeRecipient: common.HexToAddress(os.Getenv("L2_SUGGESTED_FEE_RECIPIENT")),
+		ProposeInterval:         1024 * time.Hour,
+		MaxTxListsPerEpoch:      1,
 		TxmgrConfigs: &txmgr.CLIConfig{
 			L1RPCURL:                  os.Getenv("L1_WS"),
 			NumConfirmations:          0,
@@ -100,12 +100,12 @@ func (s *ChainSyncerTestSuite) SetupTest() {
 	}, nil, nil))
 
 	s.p = prop
-	s.p.RegisterTxMgrSelctorToBlobServer(s.BlobServer)
+	s.p.RegisterTxMgrSelectorToBlobServer(s.BlobServer)
 }
 
 func (s *ChainSyncerTestSuite) TestGetInnerSyncers() {
 	s.NotNil(s.s.BeaconSyncer())
-	s.NotNil(s.s.BlobSyncer())
+	s.NotNil(s.s.EventSyncer())
 }
 
 func (s *ChainSyncerTestSuite) TestSync() {
@@ -114,17 +114,6 @@ func (s *ChainSyncerTestSuite) TestSync() {
 
 func TestChainSyncerTestSuite(t *testing.T) {
 	suite.Run(t, new(ChainSyncerTestSuite))
-}
-
-func (s *ChainSyncerTestSuite) TakeSnapshot() {
-	// record snapshot state to revert to before changes
-	s.snapshotID = s.SetL1Snapshot()
-}
-
-func (s *ChainSyncerTestSuite) RevertSnapshot() {
-	// revert to the snapshot state so protocol configs are unaffected
-	s.RevertL1Snapshot(s.snapshotID)
-	s.Nil(rpc.SetHead(context.Background(), s.RPCClient.L2, common.Big0))
 }
 
 func (s *ChainSyncerTestSuite) TestAheadOfProtocolVerifiedHead() {

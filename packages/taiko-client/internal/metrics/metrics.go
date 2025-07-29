@@ -20,13 +20,42 @@ var (
 	factory  = opMetrics.With(registry)
 
 	// Driver
-	DriverL1HeadHeightGauge         = factory.NewGauge(prometheus.GaugeOpts{Name: "driver_l1Head_height"})
-	DriverL2HeadHeightGauge         = factory.NewGauge(prometheus.GaugeOpts{Name: "driver_l2Head_height"})
-	DriverL2PreconfHeadHeightGauge  = factory.NewGauge(prometheus.GaugeOpts{Name: "driver_preconf_l2Head_height"})
-	DriverL1CurrentHeightGauge      = factory.NewGauge(prometheus.GaugeOpts{Name: "driver_l1Current_height"})
-	DriverL2HeadIDGauge             = factory.NewGauge(prometheus.GaugeOpts{Name: "driver_l2Head_id"})
-	DriverL2VerifiedHeightGauge     = factory.NewGauge(prometheus.GaugeOpts{Name: "driver_l2Verified_id"})
-	DriverPreconfP2PEnvelopeCounter = factory.NewCounter(prometheus.CounterOpts{Name: "driver_p2p_envelope"})
+	DriverL1HeadHeightGauge                = factory.NewGauge(prometheus.GaugeOpts{Name: "driver_l1Head_height"})
+	DriverL2HeadHeightGauge                = factory.NewGauge(prometheus.GaugeOpts{Name: "driver_l2Head_height"})
+	DriverL2PreconfHeadHeightGauge         = factory.NewGauge(prometheus.GaugeOpts{Name: "driver_preconf_l2Head_height"})
+	DriverL1CurrentHeightGauge             = factory.NewGauge(prometheus.GaugeOpts{Name: "driver_l1Current_height"})
+	DriverL2HeadIDGauge                    = factory.NewGauge(prometheus.GaugeOpts{Name: "driver_l2Head_id"})
+	DriverL2VerifiedHeightGauge            = factory.NewGauge(prometheus.GaugeOpts{Name: "driver_l2Verified_id"})
+	DriverHighestPreconfUnsafePayloadGauge = factory.NewGauge(prometheus.GaugeOpts{Name: "driver_highest_unsafe_payload"})
+	DriverReorgsByProposalCounter          = factory.NewCounter(prometheus.CounterOpts{Name: "driver_reorgs_by_proposal"})
+	DriverPreconfEnvelopeCounter           = factory.NewCounter(prometheus.CounterOpts{Name: "driver_p2p_envelope"})
+	DriverLastSeenBlockInProposalGauge     = factory.NewGauge(prometheus.GaugeOpts{
+		Name: "driver_last_seen_block_in_proposal",
+	})
+	DriverL2PreconfBlocksFromRPCGauge = factory.NewGauge(prometheus.GaugeOpts{
+		Name: "driver_preconf_blocks_from_rpc",
+	})
+	DriverPreconfInvalidEnvelopeCounter = factory.NewCounter(prometheus.CounterOpts{
+		Name: "driver_p2p_invalid_envelope",
+	})
+	DriverPreconfOutdatedEnvelopeCounter = factory.NewCounter(prometheus.CounterOpts{
+		Name: "driver_p2p_outdated_envelope",
+	})
+	DriverPreconfEnvelopeCachedCounter = factory.NewCounter(prometheus.CounterOpts{
+		Name: "driver_p2p_envelope_cached",
+	})
+	DriverPreconfOnL2UnsafeRequestCounter = factory.NewCounter(prometheus.CounterOpts{
+		Name: "driver_on_l2_unsafe_request",
+	})
+	DriverPreconfOnL2UnsafeResponseCounter = factory.NewCounter(prometheus.CounterOpts{
+		Name: "driver_on_l2_unsafe_response",
+	})
+	DriverPreconfOnEndOfSequencingRequestCounter = factory.NewCounter(prometheus.CounterOpts{
+		Name: "driver_on_end_of_sequencing_request",
+	})
+	DriverImportedPreconBlocksFromCacheCounter = factory.NewCounter(prometheus.CounterOpts{
+		Name: "driver_imported_preconf_blocks_from_cache",
+	})
 
 	// Proposer
 	ProposerProposeEpochCounter    = factory.NewCounter(prometheus.CounterOpts{Name: "proposer_epoch"})
@@ -48,7 +77,6 @@ var (
 	ProverProofsAssigned             = factory.NewCounter(prometheus.CounterOpts{Name: "prover_proof_assigned"})
 	ProverReceivedProposedBlockGauge = factory.NewGauge(prometheus.GaugeOpts{Name: "prover_proposed_received"})
 	ProverReceivedProvenBlockGauge   = factory.NewGauge(prometheus.GaugeOpts{Name: "prover_proven_received"})
-	ProverProvenByGuardianGauge      = factory.NewGauge(prometheus.GaugeOpts{Name: "prover_proven_by_guardian"})
 	ProverSubmissionAcceptedCounter  = factory.NewCounter(prometheus.CounterOpts{
 		Name: "prover_proof_submission_accepted",
 	})
@@ -61,11 +89,17 @@ var (
 	ProverSGXAggregationGenerationTime = factory.NewGauge(prometheus.GaugeOpts{
 		Name: "prover_proof_sgx_aggregation_generation_time",
 	})
+	ProverSGXAggregationGenerationTimeSum = factory.NewCounter(prometheus.CounterOpts{
+		Name: "prover_proof_sgx_aggregation_generation_time_sum",
+	})
 	ProverSgxProofGeneratedCounter = factory.NewCounter(prometheus.CounterOpts{
 		Name: "prover_proof_sgx_generated",
 	})
 	ProverSgxProofGenerationTime = factory.NewGauge(prometheus.GaugeOpts{
 		Name: "prover_proof_sgx_generation_time",
+	})
+	ProverSgxProofGenerationTimeSum = factory.NewCounter(prometheus.CounterOpts{
+		Name: "prover_proof_sgx_generation_time_sum",
 	})
 	ProverSgxProofAggregationGeneratedCounter = factory.NewCounter(prometheus.CounterOpts{
 		Name: "prover_proof_sgx_aggregation_generated",
@@ -73,11 +107,17 @@ var (
 	ProverSgxGethAggregationGenerationTime = factory.NewGauge(prometheus.GaugeOpts{
 		Name: "prover_proof_sgx_geth_aggregation_generation_time",
 	})
+	ProverSgxGethAggregationGenerationTimeSum = factory.NewCounter(prometheus.CounterOpts{
+		Name: "prover_proof_sgx_geth_aggregation_generation_time_sum",
+	})
 	ProverSgxGethProofGeneratedCounter = factory.NewCounter(prometheus.CounterOpts{
 		Name: "prover_proof_sgx_geth_generated",
 	})
 	ProverSgxGethProofGenerationTime = factory.NewGauge(prometheus.GaugeOpts{
 		Name: "prover_proof_sgx_geth_generation_time",
+	})
+	ProverSgxGethProofGenerationTimeSum = factory.NewCounter(prometheus.CounterOpts{
+		Name: "prover_proof_sgx_geth_generation_time_sum",
 	})
 	ProverSgxGethProofAggregationGeneratedCounter = factory.NewCounter(prometheus.CounterOpts{
 		Name: "prover_proof_sgx_geth_aggregation_generated",
@@ -85,11 +125,17 @@ var (
 	ProverR0AggregationGenerationTime = factory.NewGauge(prometheus.GaugeOpts{
 		Name: "prover_proof_r0_aggregation_generation_time",
 	})
+	ProverR0AggregationGenerationTimeSum = factory.NewCounter(prometheus.CounterOpts{
+		Name: "prover_proof_r0_aggregation_generation_time_sum",
+	})
 	ProverR0ProofGeneratedCounter = factory.NewCounter(prometheus.CounterOpts{
 		Name: "prover_proof_r0_generated",
 	})
 	ProverR0ProofGenerationTime = factory.NewGauge(prometheus.GaugeOpts{
 		Name: "prover_proof_r0_generation_time",
+	})
+	ProverR0ProofGenerationTimeSum = factory.NewCounter(prometheus.CounterOpts{
+		Name: "prover_proof_r0_generation_time_sum",
 	})
 	ProverR0ProofAggregationGeneratedCounter = factory.NewCounter(prometheus.CounterOpts{
 		Name: "prover_proof_r0_aggregation_generated",
@@ -97,11 +143,17 @@ var (
 	ProverSP1AggregationGenerationTime = factory.NewGauge(prometheus.GaugeOpts{
 		Name: "prover_proof_sp1_aggregation_generation_time",
 	})
+	ProverSP1AggregationGenerationTimeSum = factory.NewCounter(prometheus.CounterOpts{
+		Name: "prover_proof_sp1_aggregation_generation_time_sum",
+	})
 	ProverSp1ProofGeneratedCounter = factory.NewCounter(prometheus.CounterOpts{
 		Name: "prover_proof_sp1_generated",
 	})
 	ProverSP1ProofGenerationTime = factory.NewGauge(prometheus.GaugeOpts{
 		Name: "prover_proof_sp1_generation_time",
+	})
+	ProverSP1ProofGenerationTimeSum = factory.NewCounter(prometheus.CounterOpts{
+		Name: "prover_proof_sp1_generation_time_sum",
 	})
 	ProverSp1ProofAggregationGeneratedCounter = factory.NewCounter(prometheus.CounterOpts{
 		Name: "prover_proof_sp1_aggregation_generated",

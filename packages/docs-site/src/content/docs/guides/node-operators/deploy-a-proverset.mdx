@@ -21,7 +21,7 @@ This guide outlines how to achieve this with separate EOAs running prover and pr
 
 1. **Clone the Taiko Alethia monorepo**
 
-    The [Taiko Alethia monorepo](https://github.com/taikoxyz/taiko-mono) contains the scripts for deploying your `ProverSet`. Checkout the latest stable release. (Use `taiko-alethia-protocol-v2.2.0` for Taiko Hekla, )
+    The [Taiko Alethia monorepo](https://github.com/taikoxyz/taiko-mono) contains the scripts for deploying your `ProverSet`. Checkout the latest stable release `taiko-alethia-protocol-v2.3.0`.
 
     <Tabs>
         <TabItem label="Mac/Linux">
@@ -49,21 +49,23 @@ This guide outlines how to achieve this with separate EOAs running prover and pr
     <Tabs>
       <TabItem label="Taiko Alethia">
       ```bash
-      PROVER_SET_ADMIN={ADDRESS} ROLLUP_ADDRESS_MANAGER=0x579f40D0BE111b823962043702cabe6Aaa290780 forge script --chain-id 1 --rpc-url {YOUR_RPC_URL} --private-key {PRIVATE_KEY} --broadcast script/layer1/DeployProverSet.s.sol:DeployProverSet
+      PRIVATE_KEY={PRIVATE_KEY} OWNER={OWNER_ADDRESS} ADMIN={ADMIN_ADDRESS} RESOLVER=0x5A982Fb1818c22744f5d7D36D0C4c9f61937b33a TAIKO_TOKEN=0x10dea67478c5F8C5E2D90e5E9B26dBe60c54d800 ENTRYPOINT=0x9F9D2fC7abe74C79f86F0D1212107692430eef72 INBOX=0x06a9Ab27c7e2255df1815E6CC0168d7755Feb19a forge script --evm-version cancun --chain-id 1 --rpc-url {YOUR_RPC_URL} --broadcast script/layer1/mainnet/DeployProverSet.s.sol:DeployProverSet
       ```
 
       The script should print your implementation and proxy address with the log:
 
       ```
-      Deployed ProverSet impl at address: 0x....
-      Deployed ProverSet proxy at address: 0x....
+        proxy   : 0x.....
+        impl    : 0x.....
+        owner   : 0x.....
+        chain id: 1
       ```
 
       Use proxy address for the following steps.
       </TabItem>
       <TabItem label="Taiko Hekla">
       ```bash
-      PRIVATE_KEY={PRIVATE_KEY} OWNER={OWNER_ADDRESS} ADMIN={ADMIN_ADDRESS} TAIKO_TOKEN=0x6490E12d480549D333499236fF2Ba6676C296011 ENTRYPOINT=0x8698690dEeDB923fA0A674D3f65896B0031BF7c9 INBOX=0x79C9109b764609df928d16fC4a91e9081F7e87DB forge script --evm-version cancun --chain-id 17000 --rpc-url {YOUR_RPC_URL} --broadcast script/layer1/mainnet/DeployProverSet.s.sol
+      PRIVATE_KEY={PRIVATE_KEY} OWNER={OWNER_ADDRESS} ADMIN={ADMIN_ADDRESS} RESOLVER=0x3C82907B5895DB9713A0BB874379eF8A37aA2A68 TAIKO_TOKEN=0x6490E12d480549D333499236fF2Ba6676C296011 ENTRYPOINT=0x8698690dEeDB923fA0A674D3f65896B0031BF7c9 INBOX=0x79C9109b764609df928d16fC4a91e9081F7e87DB forge script --evm-version cancun --chain-id 17000 --rpc-url {YOUR_RPC_URL} --broadcast script/layer1/mainnet/DeployProverSet.s.sol:DeployProverSet
       ```
 
       The script if run correctly will print the following logs:
@@ -100,15 +102,15 @@ This guide outlines how to achieve this with separate EOAs running prover and pr
         Enable both your proposer and prover addresses here! If you don't, your proposeBlock transactions may fail.
     </Aside>
 
-    This will allow both EOAs to send transactions to your ProverSet implementation which will act as a proxy to TaikoL1.
+    This will allow both EOAs to send transactions to your ProverSet implementation which will act as a proxy to TaikoInbox.
 
 5. **Configure the contract as necessary**
 
-    Manage the contract's allowance with [approveAllowance()](https://github.com/taikoxyz/taiko-mono/blob/taiko-alethia-protocol-v1.11.0/packages/protocol/contracts/layer1/provers/ProverSet.sol#L68). TaikoL1's contract allowance is by default set to `UINT256.MAX` in the init function.
+    Manage the contract's allowance with [approveAllowance()](https://github.com/taikoxyz/taiko-mono/blob/taiko-alethia-protocol-v1.11.0/packages/protocol/contracts/layer1/provers/ProverSet.sol#L68). TaikoInbox's contract allowance is by default set to `UINT256.MAX` in the init function.
 
 6. **Deposit your tokens and run your proposer + prover as usual!**
 
-    If you've followed the instructions, send your TAIKO/TTKOh to the ProverSet proxy and begin running your prover and proposer as usual. If you've set up your allowance properly, there should be no need to use the `depositBond` function, as it deposits TTKOh from the ProverSet to TaikoL1.
+    If you've followed the instructions, send your TAIKO/TTKOh to the ProverSet proxy and begin running your prover and proposer as usual. If you've set up your allowance properly, there should be no need to use the `depositBond` function, as it deposits TTKOh from the ProverSet to TaikoInbox.
 
     <Aside>
         Make sure to set your `$PROVER_SET` in your `simple-taiko-node` .env file as the proxy address.
@@ -117,7 +119,7 @@ This guide outlines how to achieve this with separate EOAs running prover and pr
     Ensure that you have set up the EOAs correctly to avoid problems.
 
     <Aside>
-    You can withdraw the deposited tokens to the `admin` address with [withdrawToAdmin()](https://github.com/taikoxyz/taiko-mono/blob/taiko-alethia-protocol-v1.11.0/packages/protocol/contracts/layer1/provers/ProverSet.sol#L83).
+    You can withdraw the deposited tokens to the `admin` address with [withdrawToAdmin()](https://github.com/taikoxyz/taiko-mono/blob/f599a91e2d6936351a0c92ffe7e04ef28ce8b48c/packages/protocol/contracts/layer1/provers/ProverSetBase.sol#L87).
     </Aside>
 
 </Steps>
@@ -152,7 +154,7 @@ If you've already deployed a ProverSet but would like to upgrade it through the 
     <Tabs>
     <TabItem label="Taiko Alethia">
     ```bash
-    forge create --private-key {YOUR_PRIVATE_KEY} --chain-id 1 --rpc-url {YOUR_RPC_URL} contracts/layer1/provers/ProverSet.sol:ProverSet
+    forge create --private-key {YOUR_PRIVATE_KEY} --chain-id 1 --evm-version cancun --rpc-url {YOUR_RPC_URL} contracts/layer1/provers/ProverSet.sol:ProverSet --broadcast --constructor-args 0x5A982Fb1818c22744f5d7D36D0C4c9f61937b33a 0x06a9Ab27c7e2255df1815E6CC0168d7755Feb19a 0x10dea67478c5F8C5E2D90e5E9B26dBe60c54d800 0x9F9D2fC7abe74C79f86F0D1212107692430eef72
     ```
     </TabItem>
     <TabItem label="Taiko Hekla">
@@ -186,11 +188,19 @@ If you've already deployed a ProverSet but would like to upgrade it through the 
 
 ## FAQ
 
+### How do I check my bond balance?
+
+    You can check your bond balance by calling the `bondBalanceOf()` function on the TaikoInbox proxy. This will return the amount of TTKOh/TAIKO you have debited as bond.
+
+    ```
+    cast call --rpc-url {CHAIN_RPC_URL} --private-key <YOUR_PRIVATE_KEY> {TAIKO_INBOX_ADDRESS} "bondBalanceOf(address)" {YOUR_PROVERSET_ADDRESS}
+    ```
+
 ### Where is my TTKOh/TAIKO?
 
     If you've managed to propose and prove some blocks, it's likely you're wondering where your tokens went after.
 
-    It's not missing, it's just been deposited as bond in the TaikoL1 contract; you can withdraw it to the ProverSet contract with [withdrawBond()](https://github.com/taikoxyz/taiko-mono/blob/taiko-alethia-protocol-v1.11.0/packages/protocol/contracts/layer1/provers/ProverSet.sol#L151) manually.
+    It's not missing, it's just been deposited as bond in the TaikoInbox contract; you can withdraw it to the ProverSet contract with [withdrawBond()](https://github.com/taikoxyz/taiko-mono/blob/f599a91e2d6936351a0c92ffe7e04ef28ce8b48c/packages/protocol/contracts/layer1/provers/ProverSetBase.sol#L102) manually.
 
 ### How do I verify my ProverSet contract?
 
